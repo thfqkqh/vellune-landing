@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { contactFormSchema } from "@/lib/validations";
-import { submitToGoogleSheets } from "@/lib/gsheets";
+import { createInquiry } from "@/lib/inquiries";
+import { sendInquiryNotificationEmail } from "@/lib/email";
 
 const rateLimitMap = new Map<string, { count: number; resetAt: number }>();
 const RATE_LIMIT = 5;
@@ -50,8 +51,25 @@ export async function POST(request: Request) {
       );
     }
 
-    const result = await submitToGoogleSheets(parsed.data);
-    return NextResponse.json(result);
+    const { inquiry, displayId } = await createInquiry(parsed.data);
+
+    let emailSent = false;
+    let emailError: string | undefined;
+
+    try {
+      await sendInquiryNotificationEmail(inquiry);
+      emailSent = true;
+    } catch (error) {
+      emailError =
+        error instanceof Error ? error.message : "Failed to send notification email.";
+    }
+
+    return NextResponse.json({
+      success: true,
+      id: displayId,
+      emailSent,
+      emailError,
+    });
   } catch (error) {
     return NextResponse.json(
       {
