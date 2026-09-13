@@ -7,10 +7,12 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "migrate:sheets": "node scripts/migrate-sheets-csv.mjs"
+    "migrate:sheets": "node scripts/migrate-sheets-csv.mjs",
+    "migrate:gas": "node scripts/migrate-from-gas.mjs"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.9.1",
+    "@supabase/ssr": "^0.12.7",
     "@supabase/supabase-js": "^2.116.0",
     "framer-motion": "^13.2.0",
     "next": "16.3.4",

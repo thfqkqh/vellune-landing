@@ -1,5 +1,5 @@
 import type { ContactFormValues } from "./validations";
-import { createSupabaseAdmin, type InquiryRow } from "./supabase/server";
+import { createSupabaseAdmin, type InquiryRow } from "./supabase/admin";
 
 export type ContactApiResponse = {
   success: boolean;

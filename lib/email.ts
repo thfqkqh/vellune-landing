@@ -1,5 +1,5 @@
 import { Resend } from "resend";
-import type { InquiryRow } from "./supabase/server";
+import type { InquiryRow } from "./supabase/admin";
 
 function getResend() {
   const apiKey = process.env.RESEND_API_KEY;

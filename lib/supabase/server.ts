@@ -1,32 +1,30 @@
-import { createClient } from "@supabase/supabase-js";
+import { createServerClient } from "@supabase/ssr";
+import { cookies } from "next/headers";
 
-export type InquiryRow = {
-  id: string;
-  display_id: string;
-  created_at: string;
-  type: string;
-  company: string | null;
-  name: string;
-  email: string;
-  phone: string | null;
-  message: string;
-  privacy: boolean;
-  status: string;
-  notes: string | null;
-};
+export async function createSupabaseServerClient() {
+  const cookieStore = await cookies();
 
-export function createSupabaseAdmin() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
-  if (!url || !serviceRoleKey) {
-    throw new Error("Supabase environment variables are not configured.");
+  if (!url || !anonKey) {
+    throw new Error("Supabase public environment variables are not configured.");
   }
 
-  return createClient(url, serviceRoleKey, {
-    auth: {
-      autoRefreshToken: false,
-      persistSession: false,
+  return createServerClient(url, anonKey, {
+    cookies: {
+      getAll() {
+        return cookieStore.getAll();
+      },
+      setAll(cookiesToSet) {
+        try {
+          cookiesToSet.forEach(({ name, value, options }) => {
+            cookieStore.set(name, value, options);
+          });
+        } catch {
+          // Called from Server Component — middleware handles refresh.
+        }
+      },
     },
   });
 }
