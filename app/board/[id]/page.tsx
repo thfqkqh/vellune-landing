@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { getPost } from "@/lib/posts";
+import { getPost, getReplies } from "@/lib/posts";
 
 type BoardDetailPageProps = {
   params: Promise<{ id: string }>;
@@ -33,6 +33,13 @@ export default async function BoardDetailPage({ params }: BoardDetailPageProps) 
     notFound();
   }
 
+  let replies: Awaited<ReturnType<typeof getReplies>> = [];
+  try {
+    replies = await getReplies(id);
+  } catch {
+    replies = [];
+  }
+
   return (
     <div className="bg-background px-6 pb-24 pt-32">
       <div className="mx-auto max-w-2xl">
@@ -50,6 +57,26 @@ export default async function BoardDetailPage({ params }: BoardDetailPageProps) 
             {post.content}
           </div>
         </article>
+
+        {replies.length > 0 && (
+          <section className="mt-8 space-y-4">
+            <h2 className="text-xs tracking-[0.25em] text-muted">REPLIES</h2>
+            {replies.map((reply) => (
+              <div
+                key={reply.id}
+                className="rounded-sm border border-accent/20 bg-accent/5 p-6"
+              >
+                <p className="text-xs tracking-[0.2em] text-accent">VELLUNE TEAM</p>
+                <p className="mt-3 whitespace-pre-wrap text-sm leading-relaxed">
+                  {reply.content}
+                </p>
+                <p className="mt-3 text-xs text-muted">
+                  {formatDate(reply.created_at)}
+                </p>
+              </div>
+            ))}
+          </section>
+        )}
       </div>
     </div>
   );
